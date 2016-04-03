@@ -7,6 +7,7 @@ import static com.lambdaworks.redis.PlainChannelInitializer.pingBeforeActivate;
 import static com.lambdaworks.redis.PlainChannelInitializer.removeIfExists;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLEngine;
@@ -14,7 +15,6 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLParameters;
 
-import com.google.common.util.concurrent.SettableFuture;
 import com.lambdaworks.redis.event.EventBus;
 import com.lambdaworks.redis.event.connection.ConnectedEvent;
 import com.lambdaworks.redis.event.connection.ConnectionActivatedEvent;
@@ -72,7 +72,7 @@ public class SslConnectionBuilder extends ConnectionBuilder {
         private final List<ChannelHandler> handlers;
         private final RedisURI redisURI;
         private final EventBus eventBus;
-        private SettableFuture<Boolean> initializedFuture = SettableFuture.create();
+        private CompletableFuture<Boolean> initializedFuture = new CompletableFuture<>();
 
         public SslChannelInitializer(boolean pingBeforeActivate, List<ChannelHandler> handlers, RedisURI redisURI,
                 EventBus eventBus) {
@@ -133,7 +133,7 @@ public class SslConnectionBuilder extends ConnectionBuilder {
 
                     @Override
                     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-                        initializedFuture = SettableFuture.create();
+                        initializedFuture = new CompletableFuture<>();
                         pingCommand = null;
                         super.channelInactive(ctx);
                     }
@@ -162,7 +162,7 @@ public class SslConnectionBuilder extends ConnectionBuilder {
                                     ctx.fireChannelActive();
                                 }
                             } else {
-                                initializedFuture.setException(event.cause());
+                                initializedFuture.completeExceptionally(event.cause());
                             }
                         }
 
@@ -174,7 +174,7 @@ public class SslConnectionBuilder extends ConnectionBuilder {
 
                         if (evt instanceof ConnectionEvents.Activated) {
                             if (!initializedFuture.isDone()) {
-                                initializedFuture.set(true);
+                                initializedFuture.complete(true);
                                 eventBus.publish(new ConnectionActivatedEvent(local(ctx), remote(ctx)));
                             }
                         }
@@ -185,7 +185,7 @@ public class SslConnectionBuilder extends ConnectionBuilder {
                     @Override
                     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
                         if (cause instanceof SSLHandshakeException || cause.getCause() instanceof SSLException) {
-                            initializedFuture.setException(cause);
+                            initializedFuture.completeExceptionally(cause);
                         }
                         super.exceptionCaught(ctx, cause);
                     }

@@ -2,9 +2,9 @@ package com.lambdaworks.redis.cluster.models.slots;
 
 import java.util.*;
 
-import com.google.common.primitives.Ints;
 import com.lambdaworks.redis.RedisURI;
 import com.lambdaworks.redis.cluster.models.partitions.RedisClusterNode;
+import com.lambdaworks.redis.internal.LettuceAssert;
 import com.lambdaworks.redis.internal.LettuceLists;
 import com.lambdaworks.redis.internal.LettuceMaps;
 import com.lambdaworks.redis.internal.LettuceSets;
@@ -63,8 +63,8 @@ public class ClusterSlotsParser {
     private static ClusterSlotRange parseRange(List<?> range, Map<String, RedisClusterNode> nodeCache) {
         Iterator<?> iterator = range.iterator();
 
-        int from = Ints.checkedCast(getLongFromIterator(iterator, 0));
-        int to = Ints.checkedCast(getLongFromIterator(iterator, 0));
+        int from = Math.toIntExact(getLongFromIterator(iterator, 0));
+        int to = Math.toIntExact(getLongFromIterator(iterator, 0));
         RedisClusterNode master = null;
 
         List<RedisClusterNode> slaves = LettuceLists.newList();
@@ -109,7 +109,7 @@ public class ClusterSlotsParser {
 
             Iterator<?> hostAndPortIterator = hostAndPortList.iterator();
             String host = (String) hostAndPortIterator.next();
-            int port = Ints.checkedCast(getLongFromIterator(hostAndPortIterator, 0));
+            int port = Math.toIntExact(getLongFromIterator(hostAndPortIterator, 0));
             String nodeId;
 
 

@@ -4,7 +4,6 @@ import static com.lambdaworks.redis.cluster.SlotHash.getSlot;
 
 import java.util.List;
 
-import com.google.common.base.Splitter;
 import com.google.common.net.HostAndPort;
 import com.lambdaworks.redis.*;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
@@ -129,11 +128,11 @@ class ClusterDistributionChannelWriter<K, V> implements RedisChannelWriter<K, V>
                 "errorMessage must start with "
                 + CommandKeyword.MOVED);
 
-        List<String> movedMessageParts = Splitter.on(' ').splitToList(errorMessage);
-        LettuceAssert.isTrue(movedMessageParts.size() >= 3,
-                "errorMessage must consist of 3 tokens (" + movedMessageParts + ")");
+        String[] movedMessageParts = errorMessage.split(" ");
+        LettuceAssert.isTrue(movedMessageParts.length >= 3,
+                "errorMessage must consist of 3 tokens (" + errorMessage + ")");
 
-        return HostAndPort.fromString(movedMessageParts.get(2));
+        return HostAndPort.fromString(movedMessageParts[2]);
     }
 
     private HostAndPort getAskTarget(String errorMessage) {
@@ -142,11 +141,11 @@ class ClusterDistributionChannelWriter<K, V> implements RedisChannelWriter<K, V>
         LettuceAssert.isTrue(errorMessage.startsWith(CommandKeyword.ASK.name()),
                 "errorMessage must start with " + CommandKeyword.ASK);
 
-        List<String> movedMessageParts = Splitter.on(' ').splitToList(errorMessage);
-        LettuceAssert.isTrue(movedMessageParts.size() >= 3,
-                "errorMessage must consist of 3 tokens (" + movedMessageParts + ")");
+        String[] movedMessageParts = errorMessage.split(" ");
+        LettuceAssert.isTrue(movedMessageParts.length >= 3,
+                "errorMessage must consist of 3 tokens (" + errorMessage + ")");
 
-        return HostAndPort.fromString(movedMessageParts.get(2));
+        return HostAndPort.fromString(movedMessageParts[2]);
     }
 
     @Override

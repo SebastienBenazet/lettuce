@@ -12,12 +12,11 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.lambdaworks.redis.*;
 import com.lambdaworks.redis.internal.LettuceAssert;
 import com.lambdaworks.redis.internal.LettuceFactories;
 import com.lambdaworks.redis.internal.LettuceLists;
+import com.lambdaworks.redis.internal.LettuceSets;
 import com.lambdaworks.redis.resource.ClientResources;
 
 import io.netty.buffer.ByteBuf;
@@ -48,7 +47,7 @@ public class CommandHandler<K, V> extends ChannelDuplexHandler implements RedisC
      * better way to distinguish) and log them at DEBUG rather than WARN, since they are generally caused by unclean client
      * disconnects rather than an actual problem.
      */
-    private static final Set<String> SUPPRESS_IO_EXCEPTION_MESSAGES = ImmutableSet.of("Connection reset by peer", "Broken pipe",
+    private static final Set<String> SUPPRESS_IO_EXCEPTION_MESSAGES = LettuceSets.unmodifiableSet("Connection reset by peer", "Broken pipe",
             "Connection timed out");
 
     protected final ClientOptions clientOptions;
@@ -791,7 +790,7 @@ public class CommandHandler<K, V> extends ChannelDuplexHandler implements RedisC
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
         public AtMostOnceWriteListener(RedisCommand<K, V, T> sentCommand, Queue<?> queue) {
-            this((Collection) ImmutableList.of(sentCommand), queue);
+            this((Collection) LettuceLists.newList(sentCommand), queue);
         }
 
         public AtMostOnceWriteListener(Collection<RedisCommand<K, V, T>> sentCommand, Queue<?> queue) {

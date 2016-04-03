@@ -3,8 +3,8 @@ package com.lambdaworks.redis.cluster;
 import java.net.SocketAddress;
 import java.util.Collection;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
-import com.google.common.base.Supplier;
 import com.lambdaworks.redis.cluster.models.partitions.RedisClusterNode;
 import com.lambdaworks.redis.internal.LettuceAssert;
 import com.lambdaworks.redis.internal.LettuceLists;

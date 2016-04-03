@@ -1,12 +1,11 @@
 package com.lambdaworks;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.lambdaworks.redis.internal.LettuceLists;
 import com.lambdaworks.redis.internal.LettuceMaps;
 
@@ -53,9 +52,9 @@ public class RandomKeys {
             map.put(key, value);
         }
 
-        KEYS = ImmutableList.copyOf(keys);
-        VALUES = ImmutableList.copyOf(values);
-        MAP = ImmutableMap.copyOf(map);
+        KEYS = Collections.unmodifiableList(keys);
+        VALUES = Collections.unmodifiableList(values);
+        MAP = Collections.unmodifiableMap(map);
     }
 
 }

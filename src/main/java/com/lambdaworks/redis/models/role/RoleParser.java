@@ -2,11 +2,10 @@ package com.lambdaworks.redis.models.role;
 
 import java.util.*;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
-import com.google.common.primitives.Ints;
 import com.lambdaworks.redis.internal.LettuceAssert;
 import com.lambdaworks.redis.internal.LettuceLists;
+import com.lambdaworks.redis.internal.LettuceMaps;
 
 /**
  * Parser for redis <a href="http://redis.io/commands/role">ROLE</a> command output.
@@ -16,12 +15,26 @@ import com.lambdaworks.redis.internal.LettuceLists;
  */
 @SuppressWarnings("serial")
 public class RoleParser {
-    protected static final Map<String, RedisInstance.Role> ROLE_MAPPING = ImmutableMap.of("master", RedisInstance.Role.MASTER,
-            "slave", RedisInstance.Role.SLAVE, "sentinel", RedisInstance.Role.SENTINEL);
+    protected static final Map<String, RedisInstance.Role> ROLE_MAPPING;
+    protected static final Map<String, RedisSlaveInstance.State> SLAVE_STATE_MAPPING;
 
-    protected static final Map<String, RedisSlaveInstance.State> SLAVE_STATE_MAPPING = ImmutableMap.of("connect",
-            RedisSlaveInstance.State.CONNECT, "connected", RedisSlaveInstance.State.CONNECTED, "connecting",
-            RedisSlaveInstance.State.CONNECTING, "sync", RedisSlaveInstance.State.SYNC);
+    static {
+        Map<String, RedisInstance.Role> roleMap = LettuceMaps.newHashMap();
+        roleMap.put("master", RedisInstance.Role.MASTER);
+        roleMap.put("slave", RedisInstance.Role.SLAVE);
+        roleMap.put("sentinel", RedisInstance.Role.SENTINEL);
+
+        ROLE_MAPPING = Collections.unmodifiableMap(roleMap);
+
+        Map<String, RedisSlaveInstance.State> slaveStateMap = LettuceMaps.newHashMap();
+        slaveStateMap.put("connect", RedisSlaveInstance.State.CONNECT);
+        slaveStateMap.put("connected", RedisSlaveInstance.State.CONNECTED);
+        slaveStateMap.put("connecting",
+            RedisSlaveInstance.State.CONNECTING);
+        slaveStateMap.put("sync", RedisSlaveInstance.State.SYNC);
+
+        SLAVE_STATE_MAPPING = Collections.unmodifiableMap(slaveStateMap);
+    }
 
     /**
      * Utility constructor.
@@ -79,7 +92,7 @@ public class RoleParser {
         String stateString = getStringFromIterator(iterator, null);
         long replicationOffset = getLongFromIterator(iterator, 0);
 
-        ReplicationPartner master = new ReplicationPartner(HostAndPort.fromParts(ip, Ints.checkedCast(port)), replicationOffset);
+        ReplicationPartner master = new ReplicationPartner(HostAndPort.fromParts(ip, Math.toIntExact(port)), replicationOffset);
 
         RedisSlaveInstance.State state = SLAVE_STATE_MAPPING.get(stateString);
 
@@ -144,7 +157,7 @@ public class RoleParser {
         long port = getLongFromIterator(iterator, 0);
         long replicationOffset = getLongFromIterator(iterator, 0);
 
-        return new ReplicationPartner(HostAndPort.fromParts(ip, Ints.checkedCast(port)), replicationOffset);
+        return new ReplicationPartner(HostAndPort.fromParts(ip, Math.toIntExact(port)), replicationOffset);
     }
 
     private static long getLongFromIterator(Iterator<?> iterator, long defaultValue) {

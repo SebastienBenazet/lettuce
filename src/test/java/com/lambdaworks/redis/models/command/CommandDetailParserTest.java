@@ -4,10 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import com.lambdaworks.redis.internal.LettuceSets;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
 import com.lambdaworks.redis.internal.LettuceLists;
 
 public class CommandDetailParserTest {
@@ -26,14 +25,14 @@ public class CommandDetailParserTest {
 
     @Test
     public void testMalformedList() throws Exception {
-        Object o = ImmutableList.of("", "", "");
+        Object o = LettuceLists.newList("", "", "");
         List<CommandDetail> result = CommandDetailParser.parse(LettuceLists.newList(o));
         assertThat(result).isEmpty();
     }
 
     @Test
     public void testParse() throws Exception {
-        Object o = ImmutableList.of("get", "1", ImmutableList.of("fast", "loading"), 1L, 2L, 3L);
+        Object o = LettuceLists.newList("get", "1", LettuceLists.newList("fast", "loading"), 1L, 2L, 3L);
         List<CommandDetail> result = CommandDetailParser.parse(LettuceLists.newList(o));
         assertThat(result).hasSize(1);
 
@@ -54,7 +53,7 @@ public class CommandDetailParserTest {
         commandDetail.setLastKeyPosition(3);
         commandDetail.setKeyStepCount(4);
         commandDetail.setName("theName");
-        commandDetail.setFlags(Sets.<CommandDetail.Flag> newHashSet());
+        commandDetail.setFlags(LettuceSets.newHashSet());
 
         assertThat(commandDetail.toString()).contains(CommandDetail.class.getSimpleName());
     }

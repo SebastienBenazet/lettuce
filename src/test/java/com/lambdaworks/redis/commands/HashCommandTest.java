@@ -5,12 +5,12 @@ package com.lambdaworks.redis.commands;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.lambdaworks.redis.*;
 import com.lambdaworks.redis.internal.LettuceMaps;
 
@@ -217,7 +217,7 @@ public class HashCommandTest extends AbstractRedisClientTest {
 
         assertThat(cursor.getCursor()).isEqualTo("0");
         assertThat(cursor.isFinished()).isTrue();
-        assertThat(cursor.getMap()).isEqualTo(ImmutableMap.of(key, value));
+        assertThat(cursor.getMap()).isEqualTo(Collections.singletonMap(key, value));
     }
 
     @Test
@@ -228,7 +228,7 @@ public class HashCommandTest extends AbstractRedisClientTest {
 
         assertThat(cursor.getCursor()).isEqualTo("0");
         assertThat(cursor.isFinished()).isTrue();
-        assertThat(cursor.getMap()).isEqualTo(ImmutableMap.of(key, value));
+        assertThat(cursor.getMap()).isEqualTo(Collections.singletonMap(key, value));
     }
 
     @Test
@@ -239,7 +239,7 @@ public class HashCommandTest extends AbstractRedisClientTest {
 
         assertThat(cursor.getCursor()).isEqualTo("0");
         assertThat(cursor.isFinished()).isTrue();
-        assertThat(cursor.getMap()).isEqualTo(ImmutableMap.of(key, value));
+        assertThat(cursor.getMap()).isEqualTo(Collections.singletonMap(key, value));
     }
 
     @Test
@@ -252,7 +252,7 @@ public class HashCommandTest extends AbstractRedisClientTest {
         assertThat(cursor.getCount()).isEqualTo(1);
         assertThat(cursor.getCursor()).isEqualTo("0");
         assertThat(cursor.isFinished()).isTrue();
-        assertThat(adapter.getMap()).isEqualTo(ImmutableMap.of(key, value));
+        assertThat(adapter.getMap()).isEqualTo(Collections.singletonMap(key, value));
     }
 
     @Test

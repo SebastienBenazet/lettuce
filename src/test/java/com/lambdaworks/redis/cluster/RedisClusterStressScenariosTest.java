@@ -5,6 +5,7 @@ import static com.google.code.tempusfugit.temporal.Timeout.timeout;
 import static com.lambdaworks.redis.cluster.ClusterTestUtil.getOwnPartition;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Layout;
@@ -15,7 +16,6 @@ import org.junit.runners.MethodSorters;
 import com.google.code.tempusfugit.temporal.Duration;
 import com.google.code.tempusfugit.temporal.ThreadSleep;
 import com.google.code.tempusfugit.temporal.WaitFor;
-import com.google.common.collect.ImmutableList;
 import com.lambdaworks.Wait;
 import com.lambdaworks.category.SlowTests;
 import com.lambdaworks.redis.*;
@@ -51,7 +51,8 @@ public class RedisClusterStressScenariosTest extends AbstractTest {
     @BeforeClass
     public static void setupClient() throws Exception {
         client = RedisClient.create(RedisURI.Builder.redis(host, AbstractClusterTest.port5).build());
-        clusterClient = RedisClusterClient.create(ImmutableList.of(RedisURI.Builder.redis(host, AbstractClusterTest.port5)
+        clusterClient = RedisClusterClient.create(
+                Collections.singletonList(RedisURI.Builder.redis(host, AbstractClusterTest.port5)
                 .build()));
     }
 

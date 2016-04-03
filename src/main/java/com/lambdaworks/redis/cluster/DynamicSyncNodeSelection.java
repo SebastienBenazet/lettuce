@@ -4,8 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableList;
 import com.lambdaworks.redis.api.sync.RedisCommands;
 import com.lambdaworks.redis.cluster.api.StatefulRedisClusterConnection;
 import com.lambdaworks.redis.cluster.models.partitions.RedisClusterNode;
@@ -25,7 +25,7 @@ class DynamicSyncNodeSelection<CMD, K, V> extends DynamicNodeSelection<RedisComm
     }
 
     public Iterator<RedisCommands<K, V>> iterator() {
-        List<RedisClusterNode> list = ImmutableList.copyOf(nodes());
+        List<RedisClusterNode> list = nodes().stream().collect(Collectors.toList());
         return list.stream().map(node -> getConnection(node).sync()).iterator();
     }
 
@@ -37,7 +37,7 @@ class DynamicSyncNodeSelection<CMD, K, V> extends DynamicNodeSelection<RedisComm
     @Override
     public Map<RedisClusterNode, RedisCommands<K, V>> asMap() {
 
-        List<RedisClusterNode> list = ImmutableList.copyOf(nodes());
+        List<RedisClusterNode> list = nodes().stream().collect(Collectors.toList());
         Map<RedisClusterNode, RedisCommands<K, V>> map = LettuceMaps.newHashMap();
 
         list.forEach((key) -> map.put(key, getConnection(key).sync()));

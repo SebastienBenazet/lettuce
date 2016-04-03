@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
 import com.lambdaworks.redis.internal.LettuceLists;
 
@@ -42,10 +41,10 @@ public class RoleParserTest {
     @Test
     public void master() throws Exception {
 
-        List<ImmutableList<String>> slaves = ImmutableList.of(ImmutableList.of(LOCALHOST, "9001", "" + REPLICATION_OFFSET_2),
-                ImmutableList.of(LOCALHOST, "9002", "3129543"));
+        List<List<String>> slaves = LettuceLists.newList(LettuceLists.newList(LOCALHOST, "9001", "" + REPLICATION_OFFSET_2),
+                LettuceLists.newList(LOCALHOST, "9002", "3129543"));
 
-        ImmutableList<Object> input = ImmutableList.of("master", REPLICATION_OFFSET_1, slaves);
+        List<Object> input = LettuceLists.newList("master", REPLICATION_OFFSET_1, slaves);
 
         RedisInstance result = RoleParser.parse(input);
 
@@ -70,7 +69,7 @@ public class RoleParserTest {
     @Test
     public void slave() throws Exception {
 
-        List<?> input = ImmutableList.of("slave", LOCALHOST, 9000L, "connected", REPLICATION_OFFSET_1);
+        List<?> input = LettuceLists.newList("slave", LOCALHOST, 9000L, "connected", REPLICATION_OFFSET_1);
 
         RedisInstance result = RoleParser.parse(input);
 
@@ -89,8 +88,7 @@ public class RoleParserTest {
     @Test
     public void sentinel() throws Exception {
 
-        List<?> input = ImmutableList
-                .of("sentinel", ImmutableList.of("resque-master", "html-fragments-master", "stats-master"));
+        List<?> input = LettuceLists.newList("sentinel", LettuceLists.newList("resque-master", "html-fragments-master", "stats-master"));
 
         RedisInstance result = RoleParser.parse(input);
 
@@ -108,7 +106,7 @@ public class RoleParserTest {
     @Test
     public void sentinelWithoutMasters() throws Exception {
 
-        List<?> input = ImmutableList.of("sentinel");
+        List<?> input = LettuceLists.newList("sentinel");
 
         RedisInstance result = RoleParser.parse(input);
         RedisSentinelInstance instance = (RedisSentinelInstance) result;
@@ -120,7 +118,7 @@ public class RoleParserTest {
     @Test
     public void sentinelMastersIsNotAList() throws Exception {
 
-        List<?> input = ImmutableList.of("sentinel", "");
+        List<?> input = LettuceLists.newList("sentinel", "");
 
         RedisInstance result = RoleParser.parse(input);
         RedisSentinelInstance instance = (RedisSentinelInstance) result;

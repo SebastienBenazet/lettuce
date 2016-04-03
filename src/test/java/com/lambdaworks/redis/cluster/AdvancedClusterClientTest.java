@@ -2,6 +2,7 @@ package com.lambdaworks.redis.cluster;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,8 +14,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.lambdaworks.RandomKeys;
 import com.lambdaworks.redis.*;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
@@ -147,7 +146,7 @@ public class AdvancedClusterClientTest extends AbstractClusterTest {
     @Test
     public void msetRegular() throws Exception {
 
-        Map<String, String> mset = ImmutableMap.of(key, value);
+        Map<String, String> mset = Collections.singletonMap(key, value);
 
         String result = syncCommands.mset(mset);
 
@@ -420,9 +419,9 @@ public class AdvancedClusterClientTest extends AbstractClusterTest {
 
             Partitions partitions = clusterClient.getPartitions();
             for (RedisClusterNode partition : partitions) {
-                partition.setSlots(ImmutableList.of(0));
+                partition.setSlots(Collections.singletonList(0));
                 if (partition.getUri().getPort() == 7380) {
-                    partition.setSlots(ImmutableList.of(6373));
+                    partition.setSlots(Collections.singletonList(6373));
                 } else {
                     partition.setUri(RedisURI.create("redis://non.existent.host:1234"));
                 }

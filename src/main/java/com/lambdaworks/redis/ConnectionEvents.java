@@ -1,8 +1,8 @@
 package com.lambdaworks.redis;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
-import com.google.common.util.concurrent.SettableFuture;
 import com.lambdaworks.redis.internal.LettuceSets;
 
 /**
@@ -44,9 +44,9 @@ public class ConnectionEvents {
      * Internal event before a channel is closed.
      */
     public static class PrepareClose {
-        private SettableFuture<Boolean> prepareCloseFuture = SettableFuture.create();
+        private CompletableFuture<Boolean> prepareCloseFuture = new CompletableFuture<>();
 
-        public SettableFuture<Boolean> getPrepareCloseFuture() {
+        public CompletableFuture<Boolean> getPrepareCloseFuture() {
             return prepareCloseFuture;
         }
     }

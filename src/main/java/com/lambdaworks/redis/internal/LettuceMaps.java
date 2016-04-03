@@ -87,4 +87,14 @@ public class LettuceMaps {
     public static <K, V> ConcurrentHashMap<K, V> newConcurrentMap() {
         return new ConcurrentHashMap<>();
     }
+
+    /**
+     * Creates a new unmodifiable {@link HashMap} containing all elements from {@code map}.
+     *
+     * @param map a map whose mappings are to be placed in the new map, must not be {@literal null}.
+     * @return a new {@link HashMap} containing all elements from {@code map}.
+     */
+    public final static <K, V> Map<K, V> unmodifiableMap(Map<? extends K, ? extends V> map) {
+        return Collections.unmodifiableMap(newHashMap(map));
+    }
 }

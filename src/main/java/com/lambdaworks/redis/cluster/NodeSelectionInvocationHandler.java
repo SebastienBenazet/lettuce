@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.reflect.AbstractInvocationHandler;
 import com.lambdaworks.redis.RedisCommandExecutionException;
 import com.lambdaworks.redis.RedisCommandInterruptedException;
@@ -71,7 +70,7 @@ class NodeSelectionInvocationHandler extends AbstractInvocationHandler {
         try {
             Method targetMethod = findMethod(RedisClusterAsyncCommands.class, method, connectionMethod);
 
-            Map<RedisClusterNode, StatefulRedisConnection<?, ?>> connections = ImmutableMap.copyOf(selection.statefulMap());
+            Map<RedisClusterNode, StatefulRedisConnection<?, ?>> connections = LettuceMaps.unmodifiableMap(selection.statefulMap());
 
             if (targetMethod != null) {
 

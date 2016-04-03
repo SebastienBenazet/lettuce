@@ -1,11 +1,11 @@
 package com.lambdaworks.apigenerator;
 
 import java.io.File;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import com.lambdaworks.redis.internal.LettuceSets;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -16,8 +16,6 @@ import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.Type;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.lambdaworks.redis.internal.LettuceLists;
 
 /**
@@ -28,7 +26,8 @@ import com.lambdaworks.redis.internal.LettuceLists;
 @RunWith(Parameterized.class)
 public class CreateReactiveApi {
 
-    private Set<String> KEEP_METHOD_RESULT_TYPE = ImmutableSet.of("digest", "close", "isOpen", "BaseRedisCommands.reset",
+    private Set<String> KEEP_METHOD_RESULT_TYPE = LettuceSets.unmodifiableSet(
+            "digest", "close", "isOpen", "BaseRedisCommands.reset",
             "getStatefulConnection");
 
     private CompilationUnitFactory factory;
@@ -118,7 +117,7 @@ public class CreateReactiveApi {
      * @return
      */
     protected Supplier<List<String>> importSupplier() {
-        return () -> ImmutableList.of("rx.Observable");
+        return () -> Collections.singletonList("rx.Observable");
     }
 
     @Test

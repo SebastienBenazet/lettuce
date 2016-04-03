@@ -2,11 +2,11 @@ package com.lambdaworks.redis.cluster.models.slots;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.net.HostAndPort;
 import com.lambdaworks.redis.cluster.models.partitions.RedisClusterNode;
 import com.lambdaworks.redis.internal.LettuceLists;
@@ -28,14 +28,14 @@ public class ClusterSlotsParserTest {
 
     @Test
     public void testOneStringInList() throws Exception {
-        List<?> list = ImmutableList.of(LettuceLists.newList("0"));
+        List<?> list = Arrays.asList(LettuceLists.newList("0"));
         List<ClusterSlotRange> result = ClusterSlotsParser.parse(list);
         assertThat(result).isNotNull().isEmpty();
     }
 
     @Test
     public void testParse() throws Exception {
-        List<?> list = ImmutableList.of(LettuceLists.newList("0", "1", LettuceLists.newList("1", "2")));
+        List<?> list = Arrays.asList(LettuceLists.newList("0", "1", LettuceLists.newList("1", "2")));
         List<ClusterSlotRange> result = ClusterSlotsParser.parse(list);
         assertThat(result).hasSize(1);
 
@@ -45,7 +45,7 @@ public class ClusterSlotsParserTest {
 
     @Test
     public void testParseWithSlave() throws Exception {
-        List<?> list = ImmutableList.of(LettuceLists.newList("100", "200", LettuceLists.newList("1", "2", "nodeId1"),
+        List<?> list = Arrays.asList(LettuceLists.newList("100", "200", LettuceLists.newList("1", "2", "nodeId1"),
                 LettuceLists.newList("1", 2, "nodeId2")));
         List<ClusterSlotRange> result = ClusterSlotsParser.parse(list);
         assertThat(result).hasSize(1);
@@ -82,7 +82,7 @@ public class ClusterSlotsParserTest {
 
     @Test
     public void testSameNode() throws Exception {
-        List<?> list = ImmutableList.of(
+        List<?> list = Arrays.asList(
                 LettuceLists.newList("100", "200", LettuceLists.newList("1", "2", "nodeId1"),
                         LettuceLists.newList("1", 2, "nodeId2")),
                 LettuceLists.newList("200", "300", LettuceLists.newList("1", "2", "nodeId1"),
@@ -107,7 +107,7 @@ public class ClusterSlotsParserTest {
     @Test
     public void testHostAndPortConstructor() throws Exception {
 
-        ClusterSlotRange clusterSlotRange = new ClusterSlotRange(100,200,HostAndPort.fromParts("1", 2), ImmutableList.of(
+        ClusterSlotRange clusterSlotRange = new ClusterSlotRange(100, 200, HostAndPort.fromParts("1", 2), LettuceLists.newList(
                 HostAndPort.fromParts("1", 2)));
 
         RedisClusterNode masterNode = clusterSlotRange.getMasterNode();
@@ -134,8 +134,7 @@ public class ClusterSlotsParserTest {
 
     @Test
     public void testParseWithSlaveAndNodeIds() throws Exception {
-        List<?> list = ImmutableList
-                .of(LettuceLists.newList("0", "1", LettuceLists.newList("1", "2"), LettuceLists.newList("1", 2)));
+        List<?> list = Arrays.asList(LettuceLists.newList("0", "1", LettuceLists.newList("1", "2"), LettuceLists.newList("1", 2)));
         List<ClusterSlotRange> result = ClusterSlotsParser.parse(list);
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getMaster()).isNotNull();
@@ -144,13 +143,13 @@ public class ClusterSlotsParserTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseInvalidMaster() throws Exception {
-        List<?> list = ImmutableList.of(LettuceLists.newList("0", "1", LettuceLists.newList("1")));
+        List<?> list = Arrays.asList(LettuceLists.newList("0", "1", LettuceLists.newList("1")));
         ClusterSlotsParser.parse(list);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testParseInvalidMaster2() throws Exception {
-        List<?> list = ImmutableList.of(LettuceLists.newList("0", "1", ""));
+        List<?> list = Arrays.asList(LettuceLists.newList("0", "1", ""));
         ClusterSlotsParser.parse(list);
     }
 

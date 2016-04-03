@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import com.google.common.collect.ImmutableMap;
 import com.lambdaworks.redis.cluster.api.async.AsyncExecutions;
 import com.lambdaworks.redis.cluster.models.partitions.RedisClusterNode;
+import com.lambdaworks.redis.internal.LettuceMaps;
 
 /**
  * @author Mark Paluch
@@ -17,7 +17,7 @@ class AsyncExecutionsImpl<T> implements AsyncExecutions<T> {
     private Map<RedisClusterNode, CompletionStage<T>> executions;
 
     public AsyncExecutionsImpl(Map<RedisClusterNode, CompletionStage<T>> executions) {
-        this.executions = ImmutableMap.copyOf(executions);
+        this.executions = LettuceMaps.unmodifiableMap(executions);
     }
 
     @Override

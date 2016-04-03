@@ -13,10 +13,10 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.ImmutableSet;
 import com.google.common.net.HostAndPort;
 import com.lambdaworks.redis.internal.LettuceAssert;
 import com.lambdaworks.redis.internal.LettuceLists;
+import com.lambdaworks.redis.internal.LettuceSets;
 import com.lambdaworks.redis.protocol.LettuceCharsets;
 
 /**
@@ -349,7 +349,7 @@ public class RedisURI implements Serializable, ConnectionPoint {
 
     private static Builder configureStandalone(URI uri) {
         Builder builder;
-        Set<String> allowedSchemes = ImmutableSet.of(URI_SCHEME_REDIS, URI_SCHEME_REDIS_SECURE, URI_SCHEME_REDIS_SOCKET,
+        Set<String> allowedSchemes = LettuceSets.unmodifiableSet(URI_SCHEME_REDIS, URI_SCHEME_REDIS_SECURE, URI_SCHEME_REDIS_SOCKET,
                 URI_SCHEME_REDIS_SOCKET_ALT, URI_SCHEME_REDIS_SECURE_ALT, URI_SCHEME_REDIS_TLS_ALT);
 
         if (!allowedSchemes.contains(uri.getScheme())) {

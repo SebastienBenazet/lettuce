@@ -5,8 +5,8 @@ package com.lambdaworks.redis.protocol;
 import java.net.SocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Supplier;
 
-import com.google.common.base.Supplier;
 import com.lambdaworks.redis.ClientOptions;
 import com.lambdaworks.redis.ConnectionEvents;
 import com.lambdaworks.redis.RedisChannelHandler;
@@ -89,7 +89,7 @@ public class ConnectionWatchdog extends ChannelInboundHandlerAdapter implements 
             ConnectionEvents.PrepareClose prepareClose = (ConnectionEvents.PrepareClose) evt;
             setListenOnChannelInactive(false);
             setReconnectSuspended(true);
-            prepareClose.getPrepareCloseFuture().set(true);
+            prepareClose.getPrepareCloseFuture().complete(true);
 
             if (currentFuture != null && !currentFuture.isDone()) {
                 currentFuture.cancel(true);

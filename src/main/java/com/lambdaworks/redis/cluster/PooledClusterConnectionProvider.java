@@ -4,13 +4,11 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.function.Supplier;
 
-import com.google.common.base.Supplier;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.lambdaworks.redis.*;
@@ -236,7 +234,7 @@ class PooledClusterConnectionProvider<K, V> implements ClusterConnectionProvider
 
     @Override
     public void close() {
-        ImmutableMap<ConnectionKey, StatefulRedisConnection<K, V>> copy = ImmutableMap.copyOf(this.connections.asMap());
+        Map<ConnectionKey, StatefulRedisConnection<K, V>> copy = LettuceMaps.unmodifiableMap(this.connections.asMap());
         this.connections.invalidateAll();
         resetFastConnectionCache();
         for (StatefulRedisConnection<K, V> kvRedisAsyncConnection : copy.values()) {
@@ -355,7 +353,7 @@ class PooledClusterConnectionProvider<K, V> implements ClusterConnectionProvider
     }
 
     protected Collection<StatefulRedisConnection<K, V>> allConnections() {
-        return ImmutableList.copyOf(connections.asMap().values());
+        return LettuceLists.unmodifiableList(connections.asMap().values());
     }
 
     @Override

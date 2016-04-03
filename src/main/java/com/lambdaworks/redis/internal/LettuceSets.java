@@ -90,7 +90,7 @@ public class LettuceSets {
     }
 
     /**
-     * Creates a new {@code HashSet} containing all elements from {@code elements}.
+     * Creates a new {@code TreeSet} containing all elements from {@code elements}.
      * 
      * @param elements the elements that the set should contain, must not be {@literal null}.
      * @return a new {@code TreeSet} containing all elements from {@code elements}.
@@ -107,5 +107,15 @@ public class LettuceSets {
      */
     public static <K> Set<K> newConcurrentLinkedHashSet() {
         return new ConcurrentSet<>();
+    }
+
+    /**
+     * Creates a new unmodifiable {@code HashSet} containing all elements from {@code elements}.
+     *
+     * @param elements the elements that the set should contain, must not be {@literal null}.
+     * @return a new {@code HashSet} containing all elements from {@code elements}.
+     */
+    public static <K> Set<K> unmodifiableSet(K ...elements) {
+        return Collections.unmodifiableSet(newHashSet(elements));
     }
 }

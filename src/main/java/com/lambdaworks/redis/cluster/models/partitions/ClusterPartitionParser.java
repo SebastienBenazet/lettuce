@@ -1,14 +1,15 @@
 package com.lambdaworks.redis.cluster.models.partitions;
 
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HostAndPort;
 import com.lambdaworks.redis.LettuceStrings;
 import com.lambdaworks.redis.RedisException;
 import com.lambdaworks.redis.RedisURI;
 import com.lambdaworks.redis.internal.LettuceLists;
+import com.lambdaworks.redis.internal.LettuceMaps;
 import com.lambdaworks.redis.internal.LettuceSets;
 
 /**
@@ -22,20 +23,23 @@ public class ClusterPartitionParser {
 
     private static final String TOKEN_SLOT_IN_TRANSITION = "[";
     private static final char TOKEN_NODE_SEPARATOR = '\n';
+    private static final Pattern TOKEN_PATTERN = Pattern.compile(Character.toString(TOKEN_NODE_SEPARATOR));
+    private static final Pattern SPACE_PATTERN = Pattern.compile(" ");
+    private static final Pattern DASH_PATTERN = Pattern.compile("\\-");
     private static final Map<String, RedisClusterNode.NodeFlag> FLAG_MAPPING;
 
     static {
-        ImmutableMap.Builder<String, RedisClusterNode.NodeFlag> builder = ImmutableMap.builder();
+        Map<String, RedisClusterNode.NodeFlag> map = LettuceMaps.newHashMap();
 
-        builder.put("noflags", RedisClusterNode.NodeFlag.NOFLAGS);
-        builder.put("myself", RedisClusterNode.NodeFlag.MYSELF);
-        builder.put("master", RedisClusterNode.NodeFlag.MASTER);
-        builder.put("slave", RedisClusterNode.NodeFlag.SLAVE);
-        builder.put("fail?", RedisClusterNode.NodeFlag.EVENTUAL_FAIL);
-        builder.put("fail", RedisClusterNode.NodeFlag.FAIL);
-        builder.put("handshake", RedisClusterNode.NodeFlag.HANDSHAKE);
-        builder.put("noaddr", RedisClusterNode.NodeFlag.NOADDR);
-        FLAG_MAPPING = builder.build();
+        map.put("noflags", RedisClusterNode.NodeFlag.NOFLAGS);
+        map.put("myself", RedisClusterNode.NodeFlag.MYSELF);
+        map.put("master", RedisClusterNode.NodeFlag.MASTER);
+        map.put("slave", RedisClusterNode.NodeFlag.SLAVE);
+        map.put("fail?", RedisClusterNode.NodeFlag.EVENTUAL_FAIL);
+        map.put("fail", RedisClusterNode.NodeFlag.FAIL);
+        map.put("handshake", RedisClusterNode.NodeFlag.HANDSHAKE);
+        map.put("noaddr", RedisClusterNode.NodeFlag.NOADDR);
+        FLAG_MAPPING = Collections.unmodifiableMap(map);
     }
 
     /**
@@ -54,15 +58,11 @@ public class ClusterPartitionParser {
     public static Partitions parse(String nodes) {
         Partitions result = new Partitions();
 
-        Iterator<String> iterator = Splitter.on(TOKEN_NODE_SEPARATOR).omitEmptyStrings().split(nodes).iterator();
-
         try {
-            while (iterator.hasNext()) {
-                String node = iterator.next();
-                RedisClusterNode partition = parseNode(node);
-                result.addPartition(partition);
-            }
-
+            List<RedisClusterNode> mappedNodes = TOKEN_PATTERN.splitAsStream(nodes).filter(s -> !s.isEmpty())
+                    .map(ClusterPartitionParser::parseNode)
+                    .collect(Collectors.toList());
+            result.addAll(mappedNodes);
         } catch (Exception e) {
             throw new RedisException("Cannot parse " + nodes, e);
         }
@@ -73,8 +73,7 @@ public class ClusterPartitionParser {
 
     private static RedisClusterNode parseNode(String nodeInformation) {
 
-        Iterable<String> split = Splitter.on(' ').split(nodeInformation);
-        Iterator<String> iterator = split.iterator();
+        Iterator<String> iterator = SPACE_PATTERN.splitAsStream(nodeInformation).iterator();
 
         String nodeId = iterator.next();
         boolean connected = false;
@@ -92,7 +91,7 @@ public class ClusterPartitionParser {
         }
 
         String flags = iterator.next();
-        List<String> flagStrings = LettuceLists.newList(Splitter.on(',').trimResults().split(flags).iterator());
+        List<String> flagStrings = LettuceLists.newList(flags.split("\\,"));
 
         Set<RedisClusterNode.NodeFlag> nodeFlags = readFlags(flagStrings);
 
@@ -143,8 +142,7 @@ public class ClusterPartitionParser {
 
             if (slotString.contains("-")) {
                 // slot range
-                Iterable<String> split = Splitter.on('-').split(slotString);
-                Iterator<String> it = split.iterator();
+                Iterator<String> it = DASH_PATTERN.splitAsStream(slotString).iterator();
                 int from = Integer.parseInt(it.next());
                 int to = Integer.parseInt(it.next());
 

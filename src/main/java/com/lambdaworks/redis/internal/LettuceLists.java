@@ -1,5 +1,16 @@
 package com.lambdaworks.redis.internal;
 
+import com.lambdaworks.codec.Base16;
+import com.lambdaworks.codec.CRC16;
+import com.lambdaworks.redis.*;
+import com.lambdaworks.redis.api.StatefulRedisConnection;
+import com.lambdaworks.redis.cluster.SlotHash;
+import com.lambdaworks.redis.cluster.models.partitions.ClusterPartitionParser;
+import com.lambdaworks.redis.cluster.models.slots.ClusterSlotsParser;
+import com.lambdaworks.redis.models.command.CommandDetailParser;
+import com.lambdaworks.redis.models.role.RoleParser;
+import com.lambdaworks.redis.protocol.LettuceCharsets;
+
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -116,5 +127,26 @@ public class LettuceLists {
     public static <E> List<E> newSynchronizedList() {
         return new CopyOnWriteArrayList<>();
 
+    }
+
+    /**
+     * Creates a new unmodifiable {@link ArrayList} containing all elements from {@code elements}.
+     *
+     * @param elements the elements that the list should contain, must not be {@literal null}.
+     * @return a new {@link ArrayList} containing all elements from {@code elements}.
+     */
+    public static <E> List<E> unmodifiableList(E... elements) {
+        return Collections.unmodifiableList(newList(elements));
+    }
+
+    /**
+     * Creates a new unmodifiable {@link ArrayList} containing all elements from {@code elements}.
+     *
+     * @param elements the elements that the list should contain, must not be {@literal null}.
+     * @return a new {@link ArrayList} containing all elements from {@code elements}.
+     */
+    public static <E> List<E> unmodifiableList(
+            Collection<? extends E> elements) {
+        return Collections.unmodifiableList(newList(elements));
     }
 }

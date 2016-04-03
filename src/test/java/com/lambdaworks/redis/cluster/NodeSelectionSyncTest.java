@@ -7,11 +7,11 @@ import static org.assertj.core.api.Fail.fail;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import com.lambdaworks.redis.internal.LettuceSets;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableSet;
 import com.lambdaworks.Wait;
 import com.lambdaworks.redis.RedisCommandExecutionException;
 import com.lambdaworks.redis.RedisCommandTimeoutException;
@@ -98,18 +98,18 @@ public class NodeSelectionSyncTest extends AbstractClusterTest {
     public void testDynamicNodeSelection() throws Exception {
 
         Partitions partitions = commands.getStatefulConnection().getPartitions();
-        partitions.forEach(redisClusterNode -> redisClusterNode.setFlags(ImmutableSet.of(RedisClusterNode.NodeFlag.MASTER)));
+        partitions.forEach(redisClusterNode -> redisClusterNode.setFlags(Collections.singleton(RedisClusterNode.NodeFlag.MASTER)));
 
         NodeSelection<String, String> selection = commands.nodes(
                 redisClusterNode -> redisClusterNode.getFlags().contains(RedisClusterNode.NodeFlag.MYSELF), true);
 
         assertThat(selection.asMap()).hasSize(0);
         partitions.getPartition(0)
-                .setFlags(ImmutableSet.of(RedisClusterNode.NodeFlag.MYSELF, RedisClusterNode.NodeFlag.MASTER));
+                .setFlags(LettuceSets.unmodifiableSet(RedisClusterNode.NodeFlag.MYSELF, RedisClusterNode.NodeFlag.MASTER));
         assertThat(selection.asMap()).hasSize(1);
 
         partitions.getPartition(1)
-                .setFlags(ImmutableSet.of(RedisClusterNode.NodeFlag.MYSELF, RedisClusterNode.NodeFlag.MASTER));
+                .setFlags(LettuceSets.unmodifiableSet(RedisClusterNode.NodeFlag.MYSELF, RedisClusterNode.NodeFlag.MASTER));
         assertThat(selection.asMap()).hasSize(2);
 
     }
@@ -137,7 +137,7 @@ public class NodeSelectionSyncTest extends AbstractClusterTest {
         assertThat(selection.asMap()).hasSize(1);
 
         commands.getStatefulConnection().getPartitions().getPartition(2)
-                .setFlags(ImmutableSet.of(RedisClusterNode.NodeFlag.MYSELF));
+                .setFlags(Collections.singleton(RedisClusterNode.NodeFlag.MYSELF));
 
         assertThat(selection.asMap()).hasSize(1);
     }

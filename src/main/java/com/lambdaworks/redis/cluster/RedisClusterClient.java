@@ -7,10 +7,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.lambdaworks.redis.*;
 import com.lambdaworks.redis.api.StatefulRedisConnection;
 import com.lambdaworks.redis.cluster.api.NodeSelectionSupport;
@@ -25,6 +23,7 @@ import com.lambdaworks.redis.codec.Utf8StringCodec;
 import com.lambdaworks.redis.internal.LettuceAssert;
 import com.lambdaworks.redis.internal.LettuceFactories;
 import com.lambdaworks.redis.internal.LettuceLists;
+import com.lambdaworks.redis.internal.LettuceSets;
 import com.lambdaworks.redis.output.ValueStreamingChannel;
 import com.lambdaworks.redis.protocol.CommandHandler;
 import com.lambdaworks.redis.protocol.RedisCommand;
@@ -113,7 +112,7 @@ public class RedisClusterClient extends AbstractRedisClient {
 
     private ClusterTopologyRefresh refresh = new ClusterTopologyRefresh(this);
     private Partitions partitions;
-    private Iterable<RedisURI> initialUris = ImmutableSet.of();
+    private Iterable<RedisURI> initialUris = Collections.emptySet();
 
     private RedisClusterClient() {
         setOptions(ClusterClientOptions.create());
@@ -127,7 +126,7 @@ public class RedisClusterClient extends AbstractRedisClient {
      */
     @Deprecated
     public RedisClusterClient(RedisURI initialUri) {
-        this(ImmutableList.of(assertNotNull(initialUri)));
+        this(Collections.singletonList(assertNotNull(initialUri)));
     }
 
     /**
@@ -207,7 +206,7 @@ public class RedisClusterClient extends AbstractRedisClient {
      */
     public static RedisClusterClient create(RedisURI redisURI) {
         assertNotNull(redisURI);
-        return create(ImmutableList.of(redisURI));
+        return create(Collections.singleton(redisURI));
     }
 
     /**
@@ -247,7 +246,7 @@ public class RedisClusterClient extends AbstractRedisClient {
     public static RedisClusterClient create(ClientResources clientResources, RedisURI redisURI) {
         assertNotNull(clientResources);
         assertNotNull(redisURI);
-        return create(clientResources, ImmutableList.of(redisURI));
+        return create(clientResources, Collections.singleton(redisURI));
     }
 
     /**
@@ -520,7 +519,9 @@ public class RedisClusterClient extends AbstractRedisClient {
 
         if (!connected) {
             connection.close();
-            throw causingException;
+            if(causingException != null){
+                throw causingException;
+            }
         }
 
         connection.registerCloseables(closeableResources, connection, clusterWriter, pooledClusterConnectionProvider);
@@ -674,8 +675,8 @@ public class RedisClusterClient extends AbstractRedisClient {
         } else {
             Partitions loadedPartitions = loadPartitions();
             if (ClusterTopologyRefresh.isChanged(getPartitions(), loadedPartitions)) {
-                List<RedisClusterNode> before = ImmutableList.copyOf(getPartitions());
-                List<RedisClusterNode> after = ImmutableList.copyOf(loadedPartitions);
+                List<RedisClusterNode> before = LettuceLists.unmodifiableList(getPartitions());
+                List<RedisClusterNode> after = LettuceLists.unmodifiableList(loadedPartitions);
 
                 getResources().eventBus().publish(new ClusterTopologyChangedEvent(before, after));
             }
@@ -874,8 +875,8 @@ public class RedisClusterClient extends AbstractRedisClient {
             if (!values.isEmpty() && ClusterTopologyRefresh.isChanged(getPartitions(), values.get(0))) {
                 logger.debug("Using a new cluster topology");
 
-                List<RedisClusterNode> before = ImmutableList.copyOf(getPartitions());
-                List<RedisClusterNode> after = ImmutableList.copyOf(values.get(0).getPartitions());
+                List<RedisClusterNode> before = LettuceLists.unmodifiableList(getPartitions());
+                List<RedisClusterNode> after = LettuceLists.unmodifiableList(values.get(0).getPartitions());
 
                 getResources().eventBus().publish(new ClusterTopologyChangedEvent(before, after));
 

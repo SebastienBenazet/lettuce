@@ -3,15 +3,17 @@ package com.lambdaworks.redis.commands.rx;
 import static com.google.code.tempusfugit.temporal.Duration.millis;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.lambdaworks.redis.internal.LettuceMaps;
 import org.junit.Before;
 import org.junit.Test;
 
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
-import com.google.common.collect.ImmutableMap;
 import com.lambdaworks.Delay;
 import com.lambdaworks.redis.AbstractRedisClientTest;
 import com.lambdaworks.redis.api.rx.RedisReactiveCommands;
@@ -32,7 +34,11 @@ public class RxTest extends AbstractRedisClientTest {
     @Test
     public void reactiveChain() throws Exception {
 
-        reactive.mset(ImmutableMap.of(key, value, "key1", "value1")).toBlocking().first();
+        Map<String, String> map = LettuceMaps.newHashMap();
+        map.put(key, value);
+        map.put("key1", "value1");
+
+        reactive.mset(map).toBlocking().first();
 
         List<String> values = reactive.keys("*").flatMap(s -> reactive.get(s)).toList().subscribeOn(Schedulers.immediate())
                 .toBlocking().first();

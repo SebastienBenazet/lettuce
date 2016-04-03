@@ -7,7 +7,6 @@ import java.util.*;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.ImmutableSet;
 import com.lambdaworks.redis.ReadFrom;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisException;
@@ -180,7 +179,12 @@ public class MasterSlaveConnectionProvider<K, V> {
     }
 
     protected Collection<StatefulRedisConnection<K, V>> allConnections() {
-        return (Collection) ImmutableSet.builder().addAll(connections.asMap().values()).add(masterConnection).build();
+
+        Set<StatefulRedisConnection<K, V>> connections = LettuceSets
+                .newHashSet(this.connections.asMap().values());
+        connections.add(masterConnection);
+
+        return (Collection) connections;
     }
 
     /**

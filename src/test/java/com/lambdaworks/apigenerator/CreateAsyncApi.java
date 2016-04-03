@@ -1,12 +1,12 @@
 package com.lambdaworks.apigenerator;
 
 import java.io.File;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import com.lambdaworks.redis.internal.LettuceSets;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -19,8 +19,6 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.ReferenceType;
 import com.github.javaparser.ast.type.Type;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.lambdaworks.redis.internal.LettuceLists;
 
 /**
@@ -31,8 +29,8 @@ import com.lambdaworks.redis.internal.LettuceLists;
 @RunWith(Parameterized.class)
 public class CreateAsyncApi {
 
-    private Set<String> KEEP_METHOD_RESULT_TYPE = ImmutableSet.of("shutdown", "debugOom", "debugSegfault", "digest", "close",
-            "isOpen", "BaseRedisCommands.reset", "getStatefulConnection");
+    private Set<String> KEEP_METHOD_RESULT_TYPE = LettuceSets.unmodifiableSet("shutdown", "debugOom", "debugSegfault",
+            "digest", "close", "isOpen", "BaseRedisCommands.reset", "getStatefulConnection");
 
     private CompilationUnitFactory factory;
 
@@ -122,7 +120,7 @@ public class CreateAsyncApi {
      * @return
      */
     protected Supplier<List<String>> importSupplier() {
-        return () -> ImmutableList.of("com.lambdaworks.redis.RedisFuture");
+        return () -> Collections.singletonList("com.lambdaworks.redis.RedisFuture");
     }
 
     @Test

@@ -10,8 +10,6 @@ import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Default;
 import javax.enterprise.inject.spi.*;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Iterables;
 import com.lambdaworks.redis.RedisClient;
 import com.lambdaworks.redis.RedisURI;
 import com.lambdaworks.redis.cluster.RedisClusterClient;
@@ -151,8 +149,7 @@ public class LettuceCdiExtension implements Extension {
     }
 
     private boolean containsDefault(Set<Annotation> qualifiers) {
-        Optional<Annotation> result = Iterables.tryFind(qualifiers, input -> input instanceof Default);
-        return result.isPresent();
+        return qualifiers.stream().filter(input -> input instanceof Default).findFirst().isPresent();
     }
 
     private void register(AfterBeanDiscovery afterBeanDiscovery, Set<Annotation> qualifiers, Bean<?> bean) {

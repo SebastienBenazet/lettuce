@@ -10,7 +10,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.ImmutableList;
 import com.lambdaworks.TestClientResources;
 import com.lambdaworks.redis.*;
 import com.lambdaworks.redis.cluster.api.StatefulRedisClusterConnection;
@@ -51,7 +50,7 @@ public class ClusterPartiallyDownTest extends AbstractTest {
     @Test
     public void connectToPartiallyDownCluster() throws Exception {
 
-        List<RedisURI> seed = ImmutableList.of(URI_1, URI_2, URI_3, URI_4);
+        List<RedisURI> seed = LettuceLists.unmodifiableList(URI_1, URI_2, URI_3, URI_4);
         redisClusterClient = RedisClusterClient.create(clientResources, seed);
         StatefulRedisClusterConnection<String, String> connection = redisClusterClient.connect();
 
@@ -63,7 +62,7 @@ public class ClusterPartiallyDownTest extends AbstractTest {
     @Test
     public void operateOnPartiallyDownCluster() throws Exception {
 
-        List<RedisURI> seed = ImmutableList.of(URI_1, URI_2, URI_3, URI_4);
+        List<RedisURI> seed = LettuceLists.unmodifiableList(URI_1, URI_2, URI_3, URI_4);
         redisClusterClient = RedisClusterClient.create(clientResources, seed);
         StatefulRedisClusterConnection<String, String> connection = redisClusterClient.connect();
 
@@ -84,7 +83,7 @@ public class ClusterPartiallyDownTest extends AbstractTest {
     @Test
     public void seedNodesAreOffline() throws Exception {
 
-        List<RedisURI> seed = ImmutableList.of(URI_1, URI_2, URI_3);
+        List<RedisURI> seed = LettuceLists.unmodifiableList(URI_1, URI_2, URI_3);
         redisClusterClient = RedisClusterClient.create(clientResources, seed);
 
         try {
@@ -98,7 +97,7 @@ public class ClusterPartiallyDownTest extends AbstractTest {
     @Test
     public void partitionNodesAreOffline() throws Exception {
 
-        List<RedisURI> seed = ImmutableList.of(URI_1, URI_2, URI_3);
+        List<RedisURI> seed = LettuceLists.unmodifiableList(URI_1, URI_2, URI_3);
         redisClusterClient = RedisClusterClient.create(clientResources, seed);
 
         Partitions partitions = new Partitions();
